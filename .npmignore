@@ -1,0 +1,23 @@
+# TypeScript source (compiled output in dist/ is what ships)
+src/
+
+# Claude Code session data
+.claude/
+
+# GitHub Actions
+.github/
+
+# Tests
+tests/
+test.sh
+
+# Documentation (README is kept; everything else is excluded)
+CHANGELOG.md
+CONTRIBUTING.md
+
+# TypeScript config
+tsconfig.json
+tsconfig*.json
+
+# Git artifacts
+.gitignore

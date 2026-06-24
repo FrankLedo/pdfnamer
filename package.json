@@ -1,0 +1,44 @@
+{
+  "name": "pdfnamer",
+  "version": "2.0.0",
+  "description": "Rename and organize PDF bills and statements by company and date using a config file",
+  "license": "MIT",
+  "homepage": "https://github.com/frankledo/pdfnamer#readme",
+  "bugs": {
+    "url": "https://github.com/frankledo/pdfnamer/issues"
+  },
+  "author": "Frank Ledo <frank@frankledo.com>",
+  "type": "module",
+  "bin": {
+    "pdfnamer": "./dist/index.js"
+  },
+  "keywords": [
+    "pdf",
+    "rename",
+    "bills",
+    "statements",
+    "organize",
+    "cli",
+    "automation",
+    "finance"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frankledo/pdfnamer"
+  },
+  "engines": {
+    "node": ">=18.3.0"
+  },
+  "scripts": {
+    "build": "tsc && node -e \"const fs=require('fs'); const f='dist/index.js'; let c=fs.readFileSync(f,'utf8'); if(c.startsWith('#!')) c=c.slice(c.indexOf('\\n')+1); fs.writeFileSync(f, '#!/usr/bin/env node\\n'+c); fs.chmodSync(f, '755')\"",
+    "prepublishOnly": "npm run build",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^6.0.227"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "typescript": "^5.9.3"
+  }
+}
