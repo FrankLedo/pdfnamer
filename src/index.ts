@@ -378,15 +378,21 @@ function xmlEscape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function installQuickAction(): void {
-  const nodePath = xmlEscape(process.execPath);
-  const scriptPath = xmlEscape(fileURLToPath(import.meta.url));
+function shellQuote(s: string): string {
+  return `'${s.replace(/'/g, "'\\''")}'`;
+}
 
+function installQuickAction(): void {
   const wflowDir = join(homedir(), 'Library', 'Services', 'pdfnamer.workflow', 'Contents');
   mkdirSync(wflowDir, { recursive: true });
 
+  // Shell-quote paths so spaces/metacharacters in install locations are safe,
+  // then XML-escape the whole script once when embedding in the plist.
+  const nodePath = shellQuote(process.execPath);
+  const scriptPath = shellQuote(fileURLToPath(import.meta.url));
+
   const shellScript = [
-    `summary=$(${nodePath} ${scriptPath} "$@" 2>&amp;1 | tail -1)`,
+    `summary=$(${nodePath} ${scriptPath} "$@" 2>&1 | tail -1)`,
     `osascript -e "display notification \\"$summary\\" with title \\"pdfnamer\\""`,
   ].join('\n');
 
@@ -438,7 +444,7 @@ function installQuickAction(): void {
 \t\t\t\t<key>ActionParameters</key>
 \t\t\t\t<dict>
 \t\t\t\t\t<key>COMMAND_STRING</key>
-\t\t\t\t\t<string>${shellScript}</string>
+\t\t\t\t\t<string>${xmlEscape(shellScript)}</string>
 \t\t\t\t\t<key>CheckedForUserDefaultShell</key>
 \t\t\t\t\t<true/>
 \t\t\t\t\t<key>inputMethod</key>
