@@ -49,30 +49,47 @@ The config file lives at `~/.config/pdfnamer/config.json` by default. Pass `--co
 
 ```json
 {
-  "output_path": "~/Documents/Bills/{year}/{company}/{date} - {company} - {doctype}",
+  "output_path": "~/Documents/Bills/{year}/{company}/{date} - {company}[ - {account}][ - {doctype}]",
   "date_format": "YYYY-MM-DD",
-  "date_labels": ["Statement Date", "Bill Date", "Invoice Date", "Due Date", "Period Ending"],
+  "date_labels": ["Statement Date:", "Bill Date:", "Invoice Date:", "Closing Date:"],
   "companies": [
     {
-      "name": "Chase",
-      "filename_patterns": ["Chase", "chase_statement"],
-      "keywords": ["JPMorgan Chase", "chase.com", "Chase Bank"],
-      "accounts": [
-        { "number": "1234", "alias": "Sapphire" },
-        { "number": "5678", "alias": "Freedom" }
-      ],
+      "name": "Riverside Electric",
+      "filename_patterns": ["riverside_bill_*", "RiversideElectric_*"],
+      "keywords": ["Riverside Electric Company", "riverside-electric.example.com"],
+      "noAccountNumber": true,
       "subjects": [
-        { "match": "credit card", "alias": "Credit Card Statement" },
-        { "match": "checking",    "alias": "Checking Statement" }
+        { "match": "Electric Bill", "alias": "Bill" }
       ]
     },
     {
-      "name": "Pacific Gas and Electric",
-      "filename_patterns": ["PGE", "pge_bill"],
-      "keywords": ["Pacific Gas and Electric", "pge.com"],
+      "name": "Oakwood Bank - Sapphire Visa - 1234",
+      "keywords": ["Sapphire Visa", "oakwoodbank.example.com"],
+      "keyword_search_chars": 8000,
       "noAccountNumber": true,
+      "date_labels": ["Closing Date:", "Statement Date:"],
       "subjects": [
-        { "match": "electric", "alias": "Electric Bill" }
+        { "match": "Statement", "alias": "Statement" }
+      ]
+    },
+    {
+      "name": "Oakwood Bank - Rewards Visa - 5678",
+      "keywords": ["Rewards Visa", "oakwoodbank.example.com"],
+      "keyword_search_chars": 8000,
+      "noAccountNumber": true,
+      "date_labels": ["Closing Date:", "Statement Date:"],
+      "subjects": [
+        { "match": "Statement", "alias": "Statement" }
+      ]
+    },
+    {
+      "name": "Oakwood Bank",
+      "keywords": ["oakwoodbank.example.com", "Oakwood Bank"],
+      "accounts": [
+        { "number": "9012", "alias": "Checking" }
+      ],
+      "subjects": [
+        { "match": "Account Statement", "alias": "Statement" }
       ]
     }
   ]
@@ -85,7 +102,7 @@ The config file lives at `~/.config/pdfnamer/config.json` by default. Pass `--co
 |---|---|---|
 | `output_path` | required | Template for the output file path. See tokens below. |
 | `date_format` | `YYYY-MM-DD` | Format for `{date}` in the output path. |
-| `date_labels` | `["Statement Date", ...]` | Labels to search for when extracting the statement date from the PDF. |
+| `date_labels` | `["Statement Date:", ...]` | Labels searched in every PDF when extracting the statement date. Can be overridden per company. |
 
 ### Output path tokens
 
@@ -95,43 +112,80 @@ The config file lives at `~/.config/pdfnamer/config.json` by default. Pass `--co
 | `{month}` | Two-digit month (01–12) |
 | `{date}` | Full date formatted per `date_format` |
 | `{company}` | Company name from the matched config entry |
-| `{account}` | Account alias (or last-four digits if no alias defined) |
-| `{doctype}` | Document type alias from a matched subject, or a generic fallback |
+| `{account}` | Account alias from a matched `accounts` entry |
+| `{doctype}` | Document type alias from a matched `subjects` entry |
+
+Wrap a token and its surrounding delimiter in `[...]` to make the whole segment optional — it is omitted entirely when the token is empty:
+
+```
+{date} - {company}[ - {account}][ - {doctype}]
+{date}_{company}[_{account}][_{doctype}]
+{year}/{company}/{date} - {company}[/{doctype}]
+```
+
+Companies that have no `accounts` entry will silently skip the `[ - {account}]` block; companies that do will include it. This works with any delimiter style.
 
 ### Per-company fields
 
 | Field | Description |
 |---|---|
-| `name` | Display name used in the output path |
-| `filename_patterns` | Strings to check against the PDF filename (case-insensitive). Matched first — fastest path. |
-| `keywords` | Strings to scan for inside the PDF text when no filename pattern matches. |
-| `accounts` | Array of `{ number, alias }` objects mapping account last-four digits to a readable name. |
-| `subjects` | Array of `{ match, alias }` objects mapping a keyword found in the PDF to a document type label. |
-| `noAccountNumber` | Set `true` to omit the account segment from the output path for companies that don't have account numbers. |
+| `name` | Display name used in the output path. |
+| `output_path` | Override the global `output_path` for this company only. |
+| `filename_patterns` | Glob patterns checked against the PDF filename (case-insensitive, supports `*`). Matched before keywords — no PDF parsing needed. |
+| `keywords` | Strings to scan for in the PDF text when no filename pattern matches. |
+| `keyword_search_chars` | How many characters from the start of the PDF text to search for keywords. Default `2000`. Increase for documents where card-specific branding appears later in the file. |
+| `date_labels` | Override the global `date_labels` for this company. Useful when a company uses non-standard date field names. |
+| `accounts` | Array of `{ number, alias }` objects. When a number is found in the PDF text the corresponding alias is used as `{account}`. |
+| `subjects` | Array of `{ match, alias }` objects. When `match` is found in the PDF text the alias is used as `{doctype}`. First match wins. |
+| `noAccountNumber` | Set `true` to suppress account matching entirely (omits `{account}` token). |
 
 ## CLI flags
 
 | Flag | Description |
 |---|---|
-| `--dry-run` | Preview renames without moving any files |
-| `--config <path>` | Use a custom config file instead of `~/.config/pdfnamer/config.json` |
+| `-n, --dry-run` | Preview renames without moving any files |
+| `-c, --config <path>` | Use a custom config file instead of `~/.config/pdfnamer/config.json` |
 | `--init` | Write a starter config to `~/.config/pdfnamer/config.json` and exit |
-| `--help` | Show usage information |
+| `--install-quickaction` | Install a Finder Quick Action (macOS) so you can right-click PDFs to rename them |
+| `-h, --help` | Show usage information |
 
 ## How matching works
 
-pdfnamer processes each PDF in two phases:
+pdfnamer processes each PDF in two phases. **Company order matters: the first matching entry wins.** Place specific entries before catch-alls.
 
 **Company identification**
 
-1. Check each company's `filename_patterns` against the PDF filename (fast, no PDF parsing needed).
-2. If no pattern matches, extract the PDF text with `pdfjs-dist` and scan for each company's `keywords`.
-3. If still no match, the file is renamed to `UNMATCHED - <snippet>` where `<snippet>` is the first meaningful text found in the PDF.
+1. Check each company's `filename_patterns` against the PDF filename (fast, no PDF parsing needed). First match wins.
+2. If no pattern matches, extract the PDF text and scan for each company's `keywords` in order. First match wins.
+3. If still no match, report `UNMATCHED` with a text snippet to help you add a new entry.
+
+**Ordering example:** Two credit cards from the same bank share a generic bank keyword. Put the card-specific entries first; the generic bank entry acts as a catch-all:
+
+```json
+{ "name": "Oakwood Bank - Sapphire Visa", "keywords": ["Sapphire Visa", "oakwoodbank.example.com"], "keyword_search_chars": 8000 },
+{ "name": "Oakwood Bank - Rewards Visa",  "keywords": ["Rewards Visa",  "oakwoodbank.example.com"], "keyword_search_chars": 8000 },
+{ "name": "Oakwood Bank",                 "keywords": ["oakwoodbank.example.com", "Oakwood Bank"] }
+```
+
+The catch-all only matches files that didn't already match a card-specific entry. Similarly, if two companies share a keyword, the one listed first always wins.
 
 **Date extraction**
 
-1. Search the PDF text for any string listed in `date_labels` followed by a date.
-2. If no labeled date is found, fall back to scanning the document header for any date-like string.
+Dates are extracted in this order — the first successful result is used:
+
+1. Search for each label in `date_labels` (case-insensitive). When found, parse the date in the following 60 characters.
+2. Detect a date range anywhere in the document (`MM/DD/YYYY - MM/DD/YYYY`, `MM/DD/YYYY to MM/DD/YYYY`, `MM/DD/YY-MM/DD/YY`) and use the **end** date.
+3. Fall back to the first parseable date in the document header (first 2000 characters).
+4. Fall back to a date embedded in the filename itself.
+
+**Recognized date formats**
+
+- `YYYY-MM-DD` (ISO)
+- `Month DD, YYYY` and `Month DD , YYYY` (e.g. `January 1 , 2026`)
+- `MM/DD/YYYY` and `MM-DD-YYYY`
+- `MM/DD/YY` and `MM-DD-YY`
+- `YYYYMMDDHHmmss` embedded in filenames (e.g. utility download filenames)
+- Bare `YYYY` (tax year — mapped to December 31 of that year)
 
 ## Contributing
 
