@@ -1,6 +1,6 @@
 # pdfnamer
 
-[![npm version](https://img.shields.io/npm/v/pdfnamer.svg)](https://www.npmjs.com/package/pdfnamer)
+[![npm version](https://img.shields.io/npm/v/@frankledo/pdfnamer.svg)](https://www.npmjs.com/package/@frankledo/pdfnamer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 `pdfnamer` is a CLI tool that renames and organizes PDF bills and statements by automatically extracting the company name, date, and document type from the PDF content. Using a config file you maintain, it matches each PDF to a known company via filename patterns or keyword scanning, extracts the statement date, and moves the file to a structured output path — keeping your downloads folder clean with zero manual effort.
@@ -8,7 +8,7 @@
 ## Installation
 
 ```
-npm install -g pdfnamer
+npm install -g @frankledo/pdfnamer
 ```
 
 Requires **Node.js 18.3 or later**. No other system dependencies are needed.
@@ -18,7 +18,7 @@ Requires **Node.js 18.3 or later**. No other system dependencies are needed.
 **1. Install**
 
 ```
-npm install -g pdfnamer
+npm install -g @frankledo/pdfnamer
 ```
 
 **2. Generate a starter config**
