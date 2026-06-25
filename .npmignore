@@ -21,3 +21,6 @@ tsconfig*.json
 
 # Git artifacts
 .gitignore
+
+# macOS metadata
+.DS_Store
