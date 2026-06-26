@@ -146,7 +146,7 @@ Companies that have no `accounts` entry will silently skip the `[ - {account}]` 
 | `-n, --dry-run` | Preview renames without moving any files |
 | `-c, --config <path>` | Use a custom config file instead of `~/.config/pdfnamer/config.json` |
 | `--init` | Write a starter config to `~/.config/pdfnamer/config.json` and exit |
-| `--install-quickaction` | Install a Finder Quick Action (macOS) so you can right-click PDFs to rename them |
+| `--install-quickaction` | Install a Finder Quick Action (macOS) so you can right-click PDFs to rename them. After running, go to **System Settings → Privacy & Security → Extensions → Finder** and enable the pdfnamer action. |
 | `-h, --help` | Show usage information |
 
 ## How matching works
