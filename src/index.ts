@@ -43,6 +43,8 @@ interface Config {
   date_format: string;
   date_labels: string[];
   companies: CompanyConfig[];
+  rename_in_place?: boolean;
+  unmatched_prefix?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -680,7 +682,28 @@ Output path:
     if (text) cachedText = text;
 
     if (!company) {
-      const snippet = (await getText()).slice(0, 300).replace(/\s+/g, ' ').trim();
+      const rawText = await getText();
+
+      if (config.unmatched_prefix) {
+        const isoDate =
+          extractDate(rawText, config.date_labels) ??
+          parseDate(basename(fullPath, '.pdf'));
+        const currentName = basename(fullPath, '.pdf');
+        // Only prefix if we have a date and the name doesn't already start with one
+        if (isoDate && !/^\d{4}-\d{2}-\d{2}/.test(currentName)) {
+          const { formatted } = formatDate(isoDate, config.date_format);
+          const newName = `${formatted} - ${currentName}`;
+          const target = uniqueTarget(dirname(fullPath), newName);
+          const tag = dryRun ? 'DRY RUN' : 'RENAME ';
+          console.log(`${tag}    ${pdf}`);
+          console.log(`           → ${target}`);
+          if (!dryRun) renameSync(fullPath, target);
+          nRenamed++;
+          continue;
+        }
+      }
+
+      const snippet = rawText.slice(0, 300).replace(/\s+/g, ' ').trim();
       console.log(`UNMATCHED  ${pdf}`);
       console.log(`           ${snippet.slice(0, 120)}`);
       console.log();
@@ -700,26 +723,29 @@ Output path:
       continue;
     }
 
-    const { dir: targetDir, name: newName, full: targetPath } = computeOutputPath(
+    const { dir: computedDir, name: newName } = computeOutputPath(
       config, company, isoDate, await getText()
     );
 
+    const effectiveDir = config.rename_in_place ? dirname(fullPath) : computedDir;
+
     const realFull = (() => { try { return realpathSync(fullPath); } catch { return fullPath; } })();
-    const realTarget = (() => { try { return realpathSync(targetPath); } catch { return targetPath; } })();
+    const candidatePath = join(effectiveDir, `${newName}.pdf`);
+    const realTarget = (() => { try { return realpathSync(candidatePath); } catch { return candidatePath; } })();
     if (realFull === realTarget) {
       console.log(`UNCHANGED  ${pdf}`);
       nUnchanged++;
       continue;
     }
 
-    const target = uniqueTarget(targetDir, newName);
+    const target = uniqueTarget(effectiveDir, newName);
 
     const tag = dryRun ? 'DRY RUN' : 'RENAME ';
     console.log(`${tag}    ${pdf}`);
     console.log(`           → ${target}`);
 
     if (!dryRun) {
-      mkdirSync(targetDir, { recursive: true });
+      if (!config.rename_in_place) mkdirSync(effectiveDir, { recursive: true });
       renameSync(fullPath, target);
     }
     nRenamed++;

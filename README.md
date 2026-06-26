@@ -103,6 +103,8 @@ The config file lives at `~/.config/pdfnamer/config.json` by default. Pass `--co
 | `output_path` | required | Template for the output file path. See tokens below. |
 | `date_format` | `YYYY-MM-DD` | Format for `{date}` in the output path. |
 | `date_labels` | `["Statement Date:", ...]` | Labels searched in every PDF when extracting the statement date. Can be overridden per company. |
+| `rename_in_place` | `false` | When `true`, rename files in their current directory instead of moving them to `output_path`. The filename format is still controlled by the basename of `output_path`. Useful for receipts folders you want to keep in place but make searchable. |
+| `unmatched_prefix` | `false` | When `true`, files that don't match any company entry are still renamed: a date prefix (`{date} - `) is prepended to the original filename. Files that can't yield any date, or whose name already starts with a date, are left unchanged. Pairs well with `rename_in_place`. |
 
 ### Output path tokens
 
