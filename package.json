@@ -3,9 +3,9 @@
   "version": "1.0.2",
   "description": "Rename and organize PDF bills and statements by company and date using a config file",
   "license": "MIT",
-  "homepage": "https://github.com/frankledo/pdfnamer#readme",
+  "homepage": "https://github.com/FrankLedo/pdfnamer#readme",
   "bugs": {
-    "url": "https://github.com/frankledo/pdfnamer/issues"
+    "url": "https://github.com/FrankLedo/pdfnamer/issues"
   },
   "author": "Frank Ledo <frank@frankledo.com>",
   "type": "module",
@@ -24,7 +24,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/frankledo/pdfnamer"
+    "url": "https://github.com/FrankLedo/pdfnamer"
   },
   "engines": {
     "node": ">=18.3.0"
