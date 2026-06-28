@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1](https://github.com/FrankLedo/pdfnamer/compare/v1.0.0...v1.0.1) (2026-06-28)
+
+
+### Bug Fixes
+
+* cross-reference Quick Action flag to dedicated setup section ([5653bc2](https://github.com/FrankLedo/pdfnamer/commit/5653bc214d73b47a3501b46fbde5c45bebb24af4))
+
 ## 1.0.0 (2026-06-28)
 
 

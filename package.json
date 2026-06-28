@@ -1,6 +1,6 @@
 {
   "name": "@frankledo/pdfnamer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rename and organize PDF bills and statements by company and date using a config file",
   "license": "MIT",
   "homepage": "https://github.com/frankledo/pdfnamer#readme",
