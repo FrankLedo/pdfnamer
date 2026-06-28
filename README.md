@@ -189,6 +189,28 @@ Dates are extracted in this order — the first successful result is used:
 - `YYYYMMDDHHmmss` embedded in filenames (e.g. utility download filenames)
 - Bare `YYYY` (tax year — mapped to December 31 of that year)
 
+## Quick Action (macOS)
+
+pdfnamer can install a Finder Quick Action so you can right-click any PDF and rename it without opening a terminal.
+
+**1. Install the Quick Action**
+
+```
+pdfnamer --install-quickaction
+```
+
+This copies a Workflow file into `~/Library/Services/`.
+
+**2. Enable it in System Settings**
+
+Go to **System Settings → Privacy & Security → Extensions → Finder Extensions** and check the box next to **pdfnamer**.
+
+**3. Use it**
+
+Right-click any PDF in Finder → **Quick Actions → pdfnamer**.
+
+> **Note:** The Quick Action uses your default config at `~/.config/pdfnamer/config.json`. Run `pdfnamer --init` first if you haven't set one up yet.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub.
