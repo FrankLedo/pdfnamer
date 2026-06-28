@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.0 (2026-06-28)
+
+
+### Features
+
+* add rename_in_place and unmatched_prefix config options ([fc53fbc](https://github.com/FrankLedo/pdfnamer/commit/fc53fbc172defdfe8e0754581e132de5f25d3532))
+
 ## [1.0.0] - 2026-06-24
 
 ### Added
