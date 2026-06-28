@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2](https://github.com/FrankLedo/pdfnamer/compare/v1.0.1...v1.0.2) (2026-06-28)
+
+
+### Bug Fixes
+
+* use npm OIDC Trusted Publishers without registry-url token override ([d28285b](https://github.com/FrankLedo/pdfnamer/commit/d28285b32bb372c41d91acaaa4a6fab102a94fe8))
+* use NPM_TOKEN secret for publish authentication ([d2df4bd](https://github.com/FrankLedo/pdfnamer/commit/d2df4bd6b99dc8d22b9e6f364ff5993b0511c854))
+
 ## [1.0.1](https://github.com/FrankLedo/pdfnamer/compare/v1.0.0...v1.0.1) (2026-06-28)
 
 
