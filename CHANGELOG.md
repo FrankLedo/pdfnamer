@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3](https://github.com/FrankLedo/pdfnamer/compare/v1.0.2...v1.0.3) (2026-06-28)
+
+
+### Bug Fixes
+
+* correct repository URL casing to match GitHub username ([60e6afe](https://github.com/FrankLedo/pdfnamer/commit/60e6afebb62886c596f2d814bb53fd9fca573ef5))
+
 ## [1.0.2](https://github.com/FrankLedo/pdfnamer/compare/v1.0.1...v1.0.2) (2026-06-28)
 
 
