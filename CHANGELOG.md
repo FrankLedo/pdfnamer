@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0](https://github.com/FrankLedo/pdfnamer/compare/v1.0.3...v1.1.0) (2026-06-29)
+
+
+### Features
+
+* parse day-first date format (DD Mon YYYY) ([2a0264c](https://github.com/FrankLedo/pdfnamer/commit/2a0264c9ce8583281b7ef6f4091d982340533917))
+* parse day-first date format (DD Mon YYYY) ([2a0264c](https://github.com/FrankLedo/pdfnamer/commit/2a0264c9ce8583281b7ef6f4091d982340533917))
+* parse day-first date format (DD Mon YYYY) ([5656f0a](https://github.com/FrankLedo/pdfnamer/commit/5656f0a12a008a6c2744eddb91cdf52e8487d7f2))
+
 ## [1.0.3](https://github.com/FrankLedo/pdfnamer/compare/v1.0.2...v1.0.3) (2026-06-28)
 
 
