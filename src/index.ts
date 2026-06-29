@@ -238,6 +238,12 @@ function parseDate(str: string): string | null {
   // YYYYMMDDHHmmss embedded datetime (e.g. PG&E filenames: _20250329035431)
   m = str.match(/(\d{4})(\d{2})(\d{2})\d{6}/);
   if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  // "28 Jun 2026" / "28 June 2026" (day-first, e.g. Grammarly receipts)
+  m = str.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+  if (m) {
+    const mo = MONTH_NAMES[m[2].toLowerCase()];
+    if (mo) return `${m[3]}-${mo}-${m[1].padStart(2, '0')}`;
+  }
   // Bare tax year (e.g. "Tax Year: 2025") — use December 31
   m = str.match(/\b(20\d{2})\b/);
   if (m) return `${m[1]}-12-31`;
