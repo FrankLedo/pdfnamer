@@ -12,6 +12,7 @@ tests/
 test.sh
 
 # Documentation (README is kept; everything else is excluded)
+docs/
 CHANGELOG.md
 CONTRIBUTING.md
 

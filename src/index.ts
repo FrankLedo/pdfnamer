@@ -7,6 +7,7 @@ import { homedir } from 'os';
 import { parseArgs } from 'node:util';
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
+import { installWatcher, uninstallWatcher } from './watcher.js';
 
 // pdfjs-dist requires a worker even in Node — point it at the bundled file
 const require = createRequire(import.meta.url);
@@ -587,6 +588,8 @@ async function main(): Promise<void> {
       config:            { type: 'string',  short: 'c' },
       init:              { type: 'boolean',              default: false },
       'install-quickaction': { type: 'boolean',          default: false },
+      'install-watcher':   { type: 'boolean',            default: false },
+      'uninstall-watcher': { type: 'boolean',            default: false },
       version:           { type: 'boolean', short: 'v', default: false },
       help:              { type: 'boolean', short: 'h', default: false },
     },
@@ -612,6 +615,8 @@ Options:
   -c, --config <path>      Config file path (default: ~/.config/pdfnamer/config.json)
       --init               Write a sample config and exit
       --install-quickaction Install a Finder Quick Action (macOS)
+      --install-watcher [dir]  Auto-file a folder on change (macOS; default ~/Downloads)
+      --uninstall-watcher  Remove the folder watcher (macOS)
   -v, --version            Print version and exit
   -h, --help               Show this help
 
@@ -634,6 +639,21 @@ Output path:
 
   if (values['install-quickaction']) {
     installQuickAction();
+    return;
+  }
+
+  if (values['install-watcher'] && values['uninstall-watcher']) {
+    console.error('Error: --install-watcher and --uninstall-watcher are mutually exclusive.');
+    process.exit(1);
+  }
+
+  if (values['install-watcher']) {
+    installWatcher(positionals[0], fileURLToPath(import.meta.url));
+    return;
+  }
+
+  if (values['uninstall-watcher']) {
+    uninstallWatcher();
     return;
   }
 
