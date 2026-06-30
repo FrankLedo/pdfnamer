@@ -11,7 +11,7 @@
 npm install -g @frankledo/pdfnamer
 ```
 
-Requires **Node.js 18.3 or later**. No other system dependencies are needed.
+Requires **Node.js 22.13 or later**. No other system dependencies are needed.
 
 ## Quick start
 
