@@ -24,6 +24,9 @@ concurrency:
 
 jobs:
   rerequest:
+    # Fork PRs run with a read-only GITHUB_TOKEN that can't modify the base repo,
+    # so requesting a reviewer would fail. Skip them to avoid noisy red runs.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Re-request Copilot if it already reviewed this PR
@@ -31,13 +34,19 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           PR: ${{ github.event.number }}
+          BOT: copilot-pull-request-reviewer[bot]
         run: |
-          reviewed=$(gh api "repos/$REPO/pulls/$PR/reviews" \
-            --jq 'any(.[]; .user.login == "copilot-pull-request-reviewer[bot]")')
-          if [ "$reviewed" = "true" ]; then
+          # --paginate walks every page; the default 30-per-page would miss a
+          # prior review once a PR accumulates more than 30 reviews.
+          if gh api --paginate "repos/$REPO/pulls/$PR/reviews" \
+               --jq '.[].user.login' | grep -Fxq "$BOT"; then
             echo "Copilot has reviewed this PR before — re-requesting for the new commits."
-            gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" \
-              -f 'reviewers[]=copilot-pull-request-reviewer[bot]'
+            # If Copilot is still a pending requested reviewer, the API returns 422;
+            # tolerate that so repeated pushes don't turn the workflow red.
+            if ! gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" \
+                   -f 'reviewers[]=copilot-pull-request-reviewer[bot]'; then
+              echo "Re-request was rejected (Copilot is likely already requested) — ignoring."
+            fi
           else
             echo "Copilot has not reviewed this PR — skipping (manual opt-in preserved)."
           fi
