@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0](https://github.com/FrankLedo/pdfnamer/compare/v1.1.0...v2.0.0) (2026-06-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* pdfjs-dist@6 requires Node >=22.13.0, so pdfnamer no longer runs on Node 18 or 20. The engines field, CI matrix, publish workflow, and README were aligned to this floor in the prior release; this commit records it as the breaking change it is.
+
+### Features
+
+* add --version / -v flag ([117ef92](https://github.com/FrankLedo/pdfnamer/commit/117ef92aa894b7f0a7c798f1e46e516e1afd571f))
+* add --version / -v flag ([321e772](https://github.com/FrankLedo/pdfnamer/commit/321e7721eed796c60f083e14ac28dc283e00d69f))
+* drop support for Node 18 and 20 ([aa51f1a](https://github.com/FrankLedo/pdfnamer/commit/aa51f1af7dff676a7dd28e89dd4d795d2cf8c37a))
+
 ## [1.1.0](https://github.com/FrankLedo/pdfnamer/compare/v1.0.3...v1.1.0) (2026-06-29)
 
 
