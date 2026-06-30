@@ -642,6 +642,11 @@ Output path:
     return;
   }
 
+  if (values['install-watcher'] && values['uninstall-watcher']) {
+    console.error('Error: --install-watcher and --uninstall-watcher are mutually exclusive.');
+    process.exit(1);
+  }
+
   if (values['install-watcher']) {
     installWatcher(positionals[0], fileURLToPath(import.meta.url));
     return;
