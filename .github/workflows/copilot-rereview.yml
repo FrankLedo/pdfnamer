@@ -1,0 +1,64 @@
+name: Copilot re-review
+
+# GitHub's built-in "automatically request Copilot review" lives in a repository
+# *ruleset*, which is gated behind plan tiers (e.g. GitHub Pro on a private repo;
+# a Copilot subscription alone is not enough). This workflow reproduces the part
+# we care about — re-review on new commits — for free, using only the default
+# token's pull-requests:write permission.
+#
+# The first review stays a manual opt-in: request Copilot once on a PR, and
+# every push after that re-requests it automatically so the review reflects the
+# latest code. PRs Copilot has never reviewed are left untouched.
+
+on:
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  pull-requests: write
+
+# Coalesce rapid pushes to the same PR so we don't queue redundant re-requests.
+concurrency:
+  group: copilot-rereview-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  rerequest:
+    # Fork PRs run with a read-only GITHUB_TOKEN that can't modify the base repo,
+    # so requesting a reviewer would fail. Skip them to avoid noisy red runs.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-request Copilot if it already reviewed this PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.number }}
+          BOT: copilot-pull-request-reviewer[bot]
+        run: |
+          # Capture the review logins up front (the shell runs with -e), so a
+          # gh API failure — auth, rate limit, transient — aborts the step loudly
+          # instead of being silently read as "Copilot hasn't reviewed". --paginate
+          # walks every page; the default 30-per-page would miss a prior review
+          # once a PR accumulates more than 30 reviews.
+          logins=$(gh api --paginate "repos/$REPO/pulls/$PR/reviews" --jq '.[].user.login')
+
+          if ! printf '%s\n' "$logins" | grep -Fxq "$BOT"; then
+            echo "Copilot has not reviewed this PR — skipping (manual opt-in preserved)."
+            exit 0
+          fi
+
+          echo "Copilot has reviewed this PR before — re-requesting for the new commits."
+          # A re-request while Copilot is still a pending reviewer returns HTTP 422;
+          # tolerate only that. Any other failure (403/404/outage) would leave the
+          # workflow silently ineffective, so surface it and fail.
+          if ! err=$(gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" \
+                       -f 'reviewers[]=copilot-pull-request-reviewer[bot]' 2>&1); then
+            if printf '%s\n' "$err" | grep -q 'HTTP 422'; then
+              echo "Copilot is already a pending requested reviewer (HTTP 422) — ignoring."
+            else
+              echo "Re-request failed:" >&2
+              printf '%s\n' "$err" >&2
+              exit 1
+            fi
+          fi
