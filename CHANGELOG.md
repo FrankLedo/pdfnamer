@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0](https://github.com/FrankLedo/pdfnamer/compare/v2.0.0...v2.1.0) (2026-06-30)
+
+
+### Features
+
+* folder watcher (--install-watcher / --uninstall-watcher) ([#11](https://github.com/FrankLedo/pdfnamer/issues/11)) ([be0c555](https://github.com/FrankLedo/pdfnamer/commit/be0c555ec8b907c76b19648fab257ababf1f512a))
+
 ## [2.0.0](https://github.com/FrankLedo/pdfnamer/compare/v1.1.0...v2.0.0) (2026-06-30)
 
 
