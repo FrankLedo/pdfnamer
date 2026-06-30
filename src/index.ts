@@ -587,10 +587,17 @@ async function main(): Promise<void> {
       config:            { type: 'string',  short: 'c' },
       init:              { type: 'boolean',              default: false },
       'install-quickaction': { type: 'boolean',          default: false },
+      version:           { type: 'boolean', short: 'v', default: false },
       help:              { type: 'boolean', short: 'h', default: false },
     },
     allowPositionals: true,
   });
+
+  if (values.version) {
+    const { version } = require('../package.json') as { version: string };
+    console.log(version);
+    return;
+  }
 
   if (values.help) {
     console.log(`
@@ -605,6 +612,7 @@ Options:
   -c, --config <path>      Config file path (default: ~/.config/pdfnamer/config.json)
       --init               Write a sample config and exit
       --install-quickaction Install a Finder Quick Action (macOS)
+  -v, --version            Print version and exit
   -h, --help               Show this help
 
 Output path:
