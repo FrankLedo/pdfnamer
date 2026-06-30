@@ -23,6 +23,17 @@ function xmlEscape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// Mirrors expandHome() in index.ts: a shell leaves a quoted "~/Downloads"
+// unexpanded, so we expand a leading ~ ourselves to match the rest of the CLI's
+// path handling. Kept local (not imported from index.ts) to avoid a circular
+// dependency — index.ts imports this module, not the other way around.
+export function expandTilde(p: string): string {
+  if (p === '~' || p.startsWith('~/')) {
+    return homedir() + p.slice(1);
+  }
+  return p;
+}
+
 // Version managers install Node under ephemeral, version-stamped directories that
 // move or vanish when you switch/uninstall versions. A launchd agent pinned to such
 // a path can silently stop working, so we detect and warn about these locations.
@@ -89,7 +100,9 @@ export function installWatcher(folderArg: string | undefined, scriptPath: string
     process.exit(1);
   }
 
-  const folder = resolve(folderArg && folderArg.length > 0 ? folderArg : join(homedir(), 'Downloads'));
+  const folder = resolve(
+    folderArg && folderArg.length > 0 ? expandTilde(folderArg) : join(homedir(), 'Downloads')
+  );
   if (!existsSync(folder) || !statSync(folder).isDirectory()) {
     console.error(`--install-watcher: not a directory: ${folder}`);
     process.exit(1);

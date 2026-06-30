@@ -6,6 +6,7 @@ import {
   WATCHER_LABEL,
   buildWatcherPlist,
   isEphemeralNodePath,
+  expandTilde,
 } from '../dist/watcher.js';
 
 function programArgs(plist) {
@@ -59,6 +60,21 @@ test('buildWatcherPlist XML-escapes special characters in the folder path', () =
   });
   assert.ok(plist.includes('/Users/fxl/A &amp; B &lt;x&gt;'), 'special chars escaped');
   assert.ok(!plist.includes('A & B <x>'), 'raw unescaped path must not appear');
+});
+
+test('expandTilde expands a leading ~/ to the home directory', () => {
+  assert.equal(expandTilde('~/Downloads'), `${homedir()}/Downloads`);
+});
+
+test('expandTilde expands a bare ~ to the home directory', () => {
+  assert.equal(expandTilde('~'), homedir());
+});
+
+test('expandTilde leaves absolute and non-tilde paths untouched', () => {
+  assert.equal(expandTilde('/Users/fxl/Downloads'), '/Users/fxl/Downloads');
+  assert.equal(expandTilde('Downloads'), 'Downloads');
+  // A literal "~" mid-path is not a home reference and must be preserved.
+  assert.equal(expandTilde('/tmp/~weird'), '/tmp/~weird');
 });
 
 test('isEphemeralNodePath flags version-manager node paths', () => {
