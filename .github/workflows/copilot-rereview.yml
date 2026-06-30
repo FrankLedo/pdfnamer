@@ -36,17 +36,29 @@ jobs:
           PR: ${{ github.event.number }}
           BOT: copilot-pull-request-reviewer[bot]
         run: |
-          # --paginate walks every page; the default 30-per-page would miss a
-          # prior review once a PR accumulates more than 30 reviews.
-          if gh api --paginate "repos/$REPO/pulls/$PR/reviews" \
-               --jq '.[].user.login' | grep -Fxq "$BOT"; then
-            echo "Copilot has reviewed this PR before — re-requesting for the new commits."
-            # If Copilot is still a pending requested reviewer, the API returns 422;
-            # tolerate that so repeated pushes don't turn the workflow red.
-            if ! gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" \
-                   -f 'reviewers[]=copilot-pull-request-reviewer[bot]'; then
-              echo "Re-request was rejected (Copilot is likely already requested) — ignoring."
-            fi
-          else
+          # Capture the review logins up front (the shell runs with -e), so a
+          # gh API failure — auth, rate limit, transient — aborts the step loudly
+          # instead of being silently read as "Copilot hasn't reviewed". --paginate
+          # walks every page; the default 30-per-page would miss a prior review
+          # once a PR accumulates more than 30 reviews.
+          logins=$(gh api --paginate "repos/$REPO/pulls/$PR/reviews" --jq '.[].user.login')
+
+          if ! printf '%s\n' "$logins" | grep -Fxq "$BOT"; then
             echo "Copilot has not reviewed this PR — skipping (manual opt-in preserved)."
+            exit 0
+          fi
+
+          echo "Copilot has reviewed this PR before — re-requesting for the new commits."
+          # A re-request while Copilot is still a pending reviewer returns HTTP 422;
+          # tolerate only that. Any other failure (403/404/outage) would leave the
+          # workflow silently ineffective, so surface it and fail.
+          if ! err=$(gh api -X POST "repos/$REPO/pulls/$PR/requested_reviewers" \
+                       -f 'reviewers[]=copilot-pull-request-reviewer[bot]' 2>&1); then
+            if printf '%s\n' "$err" | grep -q 'HTTP 422'; then
+              echo "Copilot is already a pending requested reviewer (HTTP 422) — ignoring."
+            else
+              echo "Re-request failed:" >&2
+              printf '%s\n' "$err" >&2
+              exit 1
+            fi
           fi
