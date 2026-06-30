@@ -149,6 +149,8 @@ Companies that have no `accounts` entry will silently skip the `[ - {account}]` 
 | `-c, --config <path>` | Use a custom config file instead of `~/.config/pdfnamer/config.json` |
 | `--init` | Write a starter config to `~/.config/pdfnamer/config.json` and exit |
 | `--install-quickaction` | Install a Finder Quick Action (macOS) so you can right-click PDFs to rename them. See [Quick Action (macOS)](#quick-action-macos) for full setup steps. |
+| `--install-watcher [dir]` | Install a launchd agent (macOS) that auto-files a folder whenever it changes. Defaults to `~/Downloads`. See [Folder watcher (macOS)](#folder-watcher-macos). |
+| `--uninstall-watcher` | Remove the folder watcher (macOS). |
 | `-h, --help` | Show usage information |
 
 ## How matching works
@@ -210,6 +212,40 @@ Go to **System Settings → Privacy & Security → Extensions → Finder Extensi
 Right-click any PDF in Finder → **Quick Actions → pdfnamer**.
 
 > **Note:** The Quick Action uses your default config at `~/.config/pdfnamer/config.json`. Run `pdfnamer --init` first if you haven't set one up yet.
+
+## Folder watcher (macOS)
+
+pdfnamer can install a launchd agent that automatically files a folder every time
+its contents change — drop a statement in the folder and it's renamed and moved
+without running anything by hand.
+
+**Install**
+
+```
+pdfnamer --install-watcher ~/Downloads
+```
+
+The folder argument is optional and defaults to `~/Downloads`. This writes a
+LaunchAgent to `~/Library/LaunchAgents/com.pdfnamer.watcher.plist`, loads it, and
+logs activity to `~/Library/Logs/pdfnamer.log`. Matched PDFs are renamed and moved
+automatically (no preview); unmatched files are left in place.
+
+**Uninstall**
+
+```
+pdfnamer --uninstall-watcher
+```
+
+> **One folder at a time:** installing again with a different folder repoints the
+> single watcher rather than adding a second one.
+
+> **Pin a stable Node:** the agent records the absolute path of the Node that ran
+> the install. If that's a version-managed Node (nvm, fnm, volta, n), the path can
+> disappear when you switch or remove versions, silently stopping the watcher.
+> `--install-watcher` warns when it detects this — install pdfnamer under a stable
+> Node (e.g. Homebrew) for a watcher that keeps working.
+
+> **Note:** The watcher uses your default config at `~/.config/pdfnamer/config.json`.
 
 ## Contributing
 
