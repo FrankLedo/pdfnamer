@@ -123,9 +123,13 @@ export function installWatcher(folderArg: string | undefined, scriptPath: string
     /* not currently loaded — fine */
   }
   try {
-    execFileSync('launchctl', ['bootstrap', domain, dest], { stdio: 'ignore' });
+    // Pipe stderr so a launchctl rejection (e.g. "Load failed: 5: Input/output
+    // error") surfaces in the message instead of a generic "Command failed".
+    execFileSync('launchctl', ['bootstrap', domain, dest], { stdio: ['ignore', 'ignore', 'pipe'] });
   } catch (e) {
-    console.error(`--install-watcher: failed to load the agent via launchctl: ${(e as Error).message}`);
+    const stderr = (e as { stderr?: Buffer }).stderr?.toString().trim();
+    const detail = stderr && stderr.length > 0 ? stderr : (e as Error).message;
+    console.error(`--install-watcher: failed to load the agent via launchctl: ${detail}`);
     process.exit(1);
   }
 
