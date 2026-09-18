@@ -245,6 +245,12 @@ function parseDate(str: string): string | null {
     const mo = MONTH_NAMES[m[2].toLowerCase()];
     if (mo) return `${m[3]}-${mo}-${m[1].padStart(2, '0')}`;
   }
+  // "August 2026" (month + year, no day) — use the 1st
+  m = str.match(/\b([A-Za-z]{3,9})\.?\s+(20\d{2})\b/);
+  if (m) {
+    const mo = MONTH_NAMES[m[1].toLowerCase()];
+    if (mo) return `${m[2]}-${mo}-01`;
+  }
   // Bare tax year (e.g. "Tax Year: 2025") — use December 31
   m = str.match(/\b(20\d{2})\b/);
   if (m) return `${m[1]}-12-31`;
