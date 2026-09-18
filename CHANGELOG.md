@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0](https://github.com/FrankLedo/pdfnamer/compare/v2.1.0...v2.2.0) (2026-09-18)
+
+
+### Features
+
+* parse bare "Month YYYY" dates as the 1st of that month ([#14](https://github.com/FrankLedo/pdfnamer/issues/14)) ([1bf4261](https://github.com/FrankLedo/pdfnamer/commit/1bf4261c2308c259b46a5eea03ece9fa3de45d32))
+
+
+### Bug Fixes
+
+* accept ordinal day suffixes in day-first dates ([#16](https://github.com/FrankLedo/pdfnamer/issues/16)) ([065a24f](https://github.com/FrankLedo/pdfnamer/commit/065a24f6f3eaff864384a667692b4cfdedd47526))
+
 ## [2.1.0](https://github.com/FrankLedo/pdfnamer/compare/v2.0.0...v2.1.0) (2026-06-30)
 
 
